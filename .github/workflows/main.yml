@@ -27,20 +27,20 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      # ۲. سپس پکیج‌های شبکه، نقشه و جی‌پی‌اس کاملاً دانلود و نصب می‌شوند
+      # ۲. دریافت پکیج‌های شبکه، نقشه و جی‌پی‌اس از سرور رسمی pub.dev
       - name: Fetch Flutter Dependencies
         run: flutter pub get
           
-      # ۳. اکنون که پکیج‌ها مستقر شده‌اند، هدر رسمی پکیج latlong2 و کلاس LatLng تزریق و تصحیح می‌شود
+      # ۳. 🎯 تزریق آدرس اصلاح‌شده استودیو (latlong.dart به جای latlong2.dart) و تصحیح کلاس LatLng
       - name: Dynamic Injection of LatLong Package Header
         run: |
-          sed -i "1i import 'package:latlong2/latlong2.dart';" lib/routing_map_page.dart || true
+          sed -i "1i import 'package:latlong2/latlong.dart';" lib/routing_map_page.dart || true
           sed -i 's/Latlong/LatLng/g' lib/routing_map_page.dart || true
           sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
           sed -i 's/Latlng/LatLng/g' lib/routing_map_page.dart || true
           echo "export 'routing_map_page.dart';" > lib/routing_map.dart
 
-      # ۴. تنظیم دقیق نسخه‌های SDK اندروید در گریدل جهت سازگاری کامل
+      # ۴. تنظیم دقیق نسخه‌های SDK اندروید در گریدل جهت سازگاری کامل پکیج‌ها
       - name: Configure Android SDK Versions in Gradle
         run: |
           echo "flutter.minSdkVersion=21" >> android/local.properties
@@ -49,7 +49,7 @@ jobs:
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
           sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' android/app/build.gradle || true
           
-      # ۵. تزریق خودکار مجوزهای دسترسی جی‌پی‌اس و اینترنت به مانیفست اندروید
+      # ۵. تزریق خودکار مجوزهای دسترسی جی‌پی‌اس و اینترنت به مانیفست اندروید خریدار
       - name: Inject GPS and Internet Permissions to AndroidManifest
         run: |
           MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
@@ -59,7 +59,7 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # ۶. کامپایل نهایی بدون تداخل و خروجی نهایی سند تجاری فایل نصب کاسب
+      # ۶. کامپایل بدون خطا و زایمان نهایی فایل نصب اصلی و تجاری کاسب 
       - run: flutter build apk --release
       
       - name: Upload APK
