@@ -21,11 +21,12 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # 🎯 فرمان طلایی اصلاح خودکار اشتباه املایی کلاس نقشه LatLng پیش از شروع کامپایل
-      - name: Auto Fix LatLng Typo in Routing Map
+      # 🎯 عملیات حسابرسی کدی: اصلاح قطعی تمام فرمت‌های LatLng و LatLong در فایل نقشه
+      - name: Hard Fix LatLng Method Typo
         run: |
-          sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
           sed -i 's/Latlong/LatLng/g' lib/routing_map_page.dart || true
+          sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
+          sed -i 's/Latlng/LatLng/g' lib/routing_map_page.dart || true
         
       - name: Recreate Android Project Structure
         run: |
@@ -43,7 +44,7 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل بدون خطا و زایمان نهایی فایل نصب اصلی کاسب روی سرور مایکروسافت
+      # آغاز کامپایل نهایی و صدور رسمی سند APK
       - run: flutter build apk --release
       
       - name: Upload APK
