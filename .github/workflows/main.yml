@@ -21,14 +21,6 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # 🎯 فرمان حیاتی حسابرسی کدی: تزریق مستقیم هدر رسمی latlong2 و تصحیح املایی کلاس نقشه
-      - name: Inject LatLong Package Header & Fix Typo
-        run: |
-          sed -i "1i import 'package:latlong2/latlong2.dart';" lib/routing_map_page.dart || true
-          sed -i 's/Latlong/LatLng/g' lib/routing_map_page.dart || true
-          sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
-          sed -i 's/Latlng/LatLng/g' lib/routing_map_page.dart || true
-        
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
@@ -45,7 +37,6 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # آغاز کامپایل استاندارد و بدون خطای فایل نصب تجاری کاسب
       - run: flutter build apk --release
       
       - name: Upload APK
