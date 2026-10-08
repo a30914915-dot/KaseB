@@ -12,6 +12,7 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           
+      # استفاده از نسخه فوق‌پایدار فلاتر برای چفت شدن کامل با اندروید
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -21,24 +22,25 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # پاکسازی و بازسازی کامل ساختار با نام کوچک استاندارد
+      # پاکسازی و نوسازی ساختار اندروید با نام استاندارد حروف کوچک kaseb
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      # 🎯 فرمان حیاتی و حسابرسی فنی: ارتقای خودکار حداقل نسخه اندروید به ۲۱ جهت سازگاری کامل با پکیج نقشه و جی‌پی‌اس
-      - name: Upgrade Android minSdkVersion for GPS & Maps
+      # 🎯 راهکار اصلی حسابداری فنی: تزریق مستقیم و اجباری متغیر نسخه ۲۱ به هاردکد تنظیمات اندروید
+      - name: Force Fix Android MinSdkVersion to 21
         run: |
-          sed -i 's/minSdkVersion = .*/minSdkVersion = 21/g' android/app/build.gradle || true
+          echo "flutter.minSdkVersion=21" >> android/local.properties
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
+          sed -i 's/minSdkVersion = .*/minSdkVersion = 21/g' android/app/build.gradle || true
           
       - run: flutter pub get
       
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل بدون خطا و زایمان نهایی فایل نصب تجاری کاسب
+      # کامپایل یکپارچه و صدور نهایی سند تجاری فایل نصب کاسب
       - run: flutter build apk --release
       
       - name: Upload APK
