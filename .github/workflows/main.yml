@@ -27,9 +27,11 @@ jobs:
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      # 🎯 ۲. فرمان طلایی: تراز کردن املایی نام تابع دکمه شناور در فایل اصلی جهت رفع خطای خط ۲۶ لاگ
-      - name: Fix Floating Action Button Method Name Typo
+      # 🎯 ۲. فرمان طلایی: تراز کردن گرامر orElse و نام تابع نوار فاکتور شناور در فایل اصلی کاتالوگ
+      - name: Fix Cart Search Grammar and Floating Bar Typo
         run: |
+          sed -i 's/orphan:/orElse:/g' lib/main.dart || true
+          sed -i 's/_buildBottomAppBar/_buildFloatingSummaryBar/g' lib/main.dart || true
           sed -i 's/_buildFloatingScrollButton/_buildActionButtons/g' lib/main.dart || true
           
       # ۳. دریافت پکیج‌های شبکه، نقشه و جی‌پی‌اس از سرور رسمی pub.dev
