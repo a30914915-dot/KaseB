@@ -18,22 +18,27 @@ jobs:
           flutter-version: '3.19.6'
           channel: 'stable'
           
-      # حذف پوشه تست جهت جلوگیری از خطای ویجت‌ها
       - name: Remove Test Folder
         run: rm -rf test
         
-      # 🎯 فرمان طلایی: پاکسازی و بازسازی کامل ساختار با تزریق مستقیم نام کوچک استاندارد فلاتر
+      # پاکسازی و بازسازی کامل ساختار با نام کوچک استاندارد
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
+          
+      # 🎯 فرمان حیاتی و حسابرسی فنی: ارتقای خودکار حداقل نسخه اندروید به ۲۱ جهت سازگاری کامل با پکیج نقشه و جی‌پی‌اس
+      - name: Upgrade Android minSdkVersion for GPS & Maps
+        run: |
+          sed -i 's/minSdkVersion = .*/minSdkVersion = 21/g' android/app/build.gradle || true
+          sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
           
       - run: flutter pub get
       
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل استاندارد و خروجی نهایی بدون محدودیت حجم کد
+      # کامپایل بدون خطا و زایمان نهایی فایل نصب تجاری کاسب
       - run: flutter build apk --release
       
       - name: Upload APK
