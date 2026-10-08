@@ -22,13 +22,15 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # 🔐 دستور حیاتی: اعطای مجوز دسترسی و اجرای کامپایلر اندروید در سرور لینوکس گیت‌هاب
-      - name: Grant Execute Permission for Gradle
-        run: chmod +x android/gradlew || true
+      # 🎯 فرمان جادویی: پاکسازی و نوسازی ۱۰۰٪ فایل‌های اندروید مطابق با نسخه موتور سرور
+      - name: Recreate Android Project Structure
+        run: |
+          rm -rf android
+          flutter create . --platforms=android
           
       - run: flutter pub get
       
-      # کامپایل استاندارد، امن و ۱۰۰٪ تضمینی فایل نصب اصلی کاسب
+      # کامپایل استاندارد، امن و ۱۰۰٪ تضمینی فایل نصب اصلی کاسب بدون محدودیت توکن
       - run: flutter build apk --release
       
       - name: Upload APK
