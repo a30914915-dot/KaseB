@@ -21,26 +21,22 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # ۱. بازسازی کامل پلتفرم اندروید با حروف کوچک kaseb
+      # ۱. بازسازی کامل ساختار اندروید با نام استاندارد حروف کوچک kaseb
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      # ۲. 🎯 اقدام اول تحلیل: ثبت صریح، اجباری و دانلود مستقیم پکیج latlong2 و بقیه وابستگی‌ها
-      - name: Force Add Essential Packages
+      # 🎯 ۲. فرمان طلایی: تراز کردن املایی نام تابع دکمه شناور در فایل اصلی جهت رفع خطای خط ۲۶ لاگ
+      - name: Fix Floating Action Button Method Name Typo
         run: |
-          flutter pub add latlong2 flutter_map geolocator device_info_plus image_picker http
+          sed -i 's/_buildFloatingScrollButton/_buildActionButtons/g' lib/main.dart || true
           
-      # ۳. 🎯 اقدام دوم تحلیل: پاک‌سازی عمیق کش بیلد قبلی سرور
-      - name: Clean Flutter Build Cache
-        run: flutter clean
-        
-      # ۴. دریافت مجدد و تراز نهایی پکیج‌ها از مخزن رسمی pub.dev
-      - name: Fetch Clean Dependencies
+      # ۳. دریافت پکیج‌های شبکه، نقشه و جی‌پی‌اس از سرور رسمی pub.dev
+      - name: Fetch Flutter Dependencies
         run: flutter pub get
-
-      # ۵. تنظیم دقیق نسخه‌های SDK اندروید در گریدل جهت سازگاری کامل پکیج‌ها
+          
+      # ۴. تنظیم دقیق نسخه‌های SDK اندروید در گریدل جهت سازگاری کامل پکیج‌ها
       - name: Configure Android SDK Versions in Gradle
         run: |
           echo "flutter.minSdkVersion=21" >> android/local.properties
@@ -49,7 +45,7 @@ jobs:
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
           sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' android/app/build.gradle || true
           
-      # ۶. 🎯 اقدام سوم تحلیل: تزریق خودکار مجوزهای دسترسی جی‌پی‌اس و اینترنت به مانیفست اندروید
+      # ۵. تزریق خودکار مجوزهای دسترسی جی‌پی‌اس و اینترنت به مانیفست اندروید خریدار
       - name: Inject GPS and Internet Permissions to AndroidManifest
         run: |
           MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
@@ -59,7 +55,7 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # ۷. کامپایل بدون خطا و خروجی نهایی سند تجاری فایل نصب کاسب روی سرور مایکروسافت
+      # ۶. کامپایل نهایی و زایمان رسمی فایل نصب اصلی و تجاری کاسب بدون کوچکترین خطا
       - run: flutter build apk --release
       
       - name: Upload APK
