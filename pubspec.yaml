@@ -1,0 +1,41 @@
+name: dayan_sync_flutter
+description: "Cross-platform Flutter application for Dayan Cloud Sync & Kaseb App."
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Network HTTP client for Google Web App endpoint communication
+  http: ^1.1.0
+
+  # Device information provider for telemetry and device identification
+  device_info_plus: ^9.0.2
+
+  # Camera and photo gallery access for product and customer receipts/images
+  image_picker: ^1.0.4
+
+  # Interactive OpenStreetMap routing and visitor line mapping
+  flutter_map: ^6.1.0
+
+  # Coordinate and geospatial math library for flutter_map
+  latlong2: ^0.9.0
+
+  # Modern UI icons
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Flutter recommended linter rules
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
