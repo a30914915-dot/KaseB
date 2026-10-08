@@ -18,28 +18,48 @@ jobs:
           flutter-version: '3.19.6'
           channel: 'stable'
           
-      # حذف پوشه تست جهت عبور از خطای ویجت‌ها
       - name: Remove Test Folder
         run: rm -rf test
         
-      # بازسازی خودکار ساختار اندروید با نام حروف کوچک kaseb
+      # ۱. بازسازی کامل پلتفرم اندروید با حروف کوچک kaseb
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      - name: Force Fix Android MinSdkVersion to 21
+      # ۲. 🎯 اقدام اول تحلیل: ثبت صریح، اجباری و دانلود مستقیم پکیج latlong2 و بقیه وابستگی‌ها
+      - name: Force Add Essential Packages
+        run: |
+          flutter pub add latlong2 flutter_map geolocator device_info_plus image_picker http
+          
+      # ۳. 🎯 اقدام دوم تحلیل: پاک‌سازی عمیق کش بیلد قبلی سرور
+      - name: Clean Flutter Build Cache
+        run: flutter clean
+        
+      # ۴. دریافت مجدد و تراز نهایی پکیج‌ها از مخزن رسمی pub.dev
+      - name: Fetch Clean Dependencies
+        run: flutter pub get
+
+      # ۵. تنظیم دقیق نسخه‌های SDK اندروید در گریدل جهت سازگاری کامل پکیج‌ها
+      - name: Configure Android SDK Versions in Gradle
         run: |
           echo "flutter.minSdkVersion=21" >> android/local.properties
+          echo "flutter.compileSdkVersion=34" >> android/local.properties
+          echo "flutter.targetSdkVersion=34" >> android/local.properties
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
-          sed -i 's/minSdkVersion = .*/minSdkVersion = 21/g' android/app/build.gradle || true
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' android/app/build.gradle || true
           
-      - run: flutter pub get
+      # ۶. 🎯 اقدام سوم تحلیل: تزریق خودکار مجوزهای دسترسی جی‌پی‌اس و اینترنت به مانیفست اندروید
+      - name: Inject GPS and Internet Permissions to AndroidManifest
+        run: |
+          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+          PERMISSIONS="<uses-permission android:name=\"android.permission.INTERNET\"/>\n    <uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>\n    <uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>"
+          sed -i "s|<manifest.*|&\n    $PERMISSIONS|" $MANIFEST_PATH || true
       
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل یکپارچه و صعود مقتدرانه به خروجی نهایی APK
+      # ۷. کامپایل بدون خطا و خروجی نهایی سند تجاری فایل نصب کاسب روی سرور مایکروسافت
       - run: flutter build apk --release
       
       - name: Upload APK
