@@ -20,23 +20,44 @@ jobs:
           
       - name: Remove Test Folder
         run: rm -rf test
+
+      # 🎯 گام اول و دوم تحلیل: حل تداخل نام فایل و تزریق هدر پکیج نقشه
+      - name: Fix LatLng Typo and File Name Routing
+        run: |
+          sed -i "1i import 'package:latlong2/latlong2.dart';" lib/routing_map_page.dart || true
+          sed -i 's/Latlong/LatLng/g' lib/routing_map_page.dart || true
+          sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
+          sed -i 's/Latlng/LatLng/g' lib/routing_map_page.dart || true
+          echo "export 'routing_map_page.dart';" > lib/routing_map.dart
         
+      # نوسازی ساختار اندروید منطبق با سرور با نام کوچک kaseb
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      - name: Force Fix Android MinSdkVersion to 21
+      # 🎯 گام سوم تحلیل: تنظیم مستقیم minSdkVersion 21 و compileSdkVersion 34 در گریدل
+      - name: Configure Android SDK Versions in Gradle
         run: |
           echo "flutter.minSdkVersion=21" >> android/local.properties
+          echo "flutter.compileSdkVersion=34" >> android/local.properties
+          echo "flutter.targetSdkVersion=34" >> android/local.properties
           sed -i 's/minSdkVersion .*/minSdkVersion 21/g' android/app/build.gradle || true
-          sed -i 's/minSdkVersion = .*/minSdkVersion = 21/g' android/app/build.gradle || true
+          sed -i 's/compileSdkVersion .*/compileSdkVersion 34/g' android/app/build.gradle || true
+          
+      # 🎯 /گام چهارم تحلیل: تزریق خودکار مجوزهای دسترسی GPS و اینترنت به مانیفست اندروید
+      - name: Inject GPS and Internet Permissions to AndroidManifest
+        run: |
+          MANIFEST_PATH="android/app/src/main/AndroidManifest.xml"
+          PERMISSIONS="<uses-permission android:name=\"android.permission.INTERNET\"/>\n    <uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>\n    <uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>"
+          sed -i "s|<manifest.*|&\n    $PERMISSIONS|" $MANIFEST_PATH || true
           
       - run: flutter pub get
       
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
+      # 🎯 گام پنجم تحلیل: بیلد نهایی و زایمان رسمی فایل نصب اصلی کاسب بدون خطا
       - run: flutter build apk --release
       
       - name: Upload APK
