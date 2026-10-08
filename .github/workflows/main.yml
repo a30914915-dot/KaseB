@@ -12,7 +12,6 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           
-      # استفاده از نسخه فوق‌پایدار فلاتر برای چفت شدن کامل با اندروید
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -22,13 +21,17 @@ jobs:
       - name: Remove Test Folder
         run: rm -rf test
         
-      # پاکسازی و نوسازی ساختار اندروید با نام استاندارد حروف کوچک kaseb
+      # 🎯 فرمان طلایی اصلاح خودکار اشتباه املایی کلاس نقشه LatLng پیش از شروع کامپایل
+      - name: Auto Fix LatLng Typo in Routing Map
+        run: |
+          sed -i 's/latlng/LatLng/g' lib/routing_map_page.dart || true
+          sed -i 's/Latlong/LatLng/g' lib/routing_map_page.dart || true
+        
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android --project-name=kaseb
           
-      # 🎯 راهکار اصلی حسابداری فنی: تزریق مستقیم و اجباری متغیر نسخه ۲۱ به هاردکد تنظیمات اندروید
       - name: Force Fix Android MinSdkVersion to 21
         run: |
           echo "flutter.minSdkVersion=21" >> android/local.properties
@@ -40,7 +43,7 @@ jobs:
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل یکپارچه و صدور نهایی سند تجاری فایل نصب کاسب
+      # کامپایل بدون خطا و زایمان نهایی فایل نصب اصلی کاسب روی سرور مایکروسافت
       - run: flutter build apk --release
       
       - name: Upload APK
