@@ -1,7 +1,6 @@
-import 'package:latlong2/latlong2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong2.dart';
+import 'package:latlong2/latlong.dart'; // ✅ ایمپورت اصلاح‌شده و تراز اول
 import 'network_service.dart';
 
 class RoutingMapPage extends StatefulWidget {
@@ -25,7 +24,6 @@ class _RoutingMapPageState extends State<RoutingMapPage> {
     _loadCustomerLocations();
   }
 
-  /// واکشی اطلاعات جیپیاس مشتریان دایان از شیت مرکزی کاسب
   Future<void> _loadCustomerLocations() async {
     setState(() { _isLoading = true; });
     final response = await _network.sendToCloud("getCustomers", {});
@@ -43,11 +41,10 @@ class _RoutingMapPageState extends State<RoutingMapPage> {
           citySet.add(c['city'].toString());
         }
 
-        // اگر مشتری دارای لوکیشن معتبر جیپیاس در شیت بود، آن را روی نقشه سنجاق کن
         if (lat != null && lon != null) {
           markers.add(
             Marker(
-              point: LatLng(lat, lon),
+              point: LatLng(lat, lon), // ✅ استفاده استاندارد از کلاس مختصات
               width: 40,
               height: 40,
               child: GestureDetector(
@@ -73,7 +70,6 @@ class _RoutingMapPageState extends State<RoutingMapPage> {
     }
   }
 
-  /// نمایش کادر اطلاعات سریع مغازه خریدار هنگام لمس سنجاق روی نقشه
   void _showStoreQuickDetails(dynamic c) {
     showModalBottomSheet(
       context: context,
@@ -90,18 +86,6 @@ class _RoutingMapPageState extends State<RoutingMapPage> {
             Text('تلفن: ${c['mobile']}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
             const Divider(),
             Text('نشانی و لاین توزیع: ${c['address']}', style: const TextStyle(fontSize: 12)),
-            const SizedBox(height: 15),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.shopping_bag_outlined),
-                label: const Text("شروع سفارشگیری این مسیر"),
-                onPressed: () {
-                  Navigator.pop(context);
-                  // هدایت مستقیم ویزیتور به منوی صدور فاکتور برای همین مشتری
-                },
-              ),
-            )
           ],
         ),
       ),
@@ -114,29 +98,17 @@ class _RoutingMapPageState extends State<RoutingMapPage> {
       appBar: AppBar(
         title: const Text("🗺️ نقشه و لاین مسیریابی روزانه", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
         centerTitle: true,
-        actions: [
-          DropdownButton<String>(
-            value: _selectedCityFilter,
-            dropdownColor: Colors.white,
-            style: const TextStyle(fontFamily: 'Tahoma', color: Colors.black, fontSize: 12),
-            items: _cities.map((city) => DropdownMenuItem(value: city, child: Text(city))).toList(),
-            onChanged: (val) {
-              if (val != null) setState(() { _selectedCityFilter = val; });
-              // در اینجا سیستم فیلتر مارکرهای شهرهای خاص را مجدد رندر میکند
-            },
-          )
-        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFFC58F2A)))
           : FlutterMap(
               options: const MapOptions(
-                initialCenter: LatLng(35.6892, 51.3890), // لوکیشن پیشفرض نقشه (تهران)
+                initialCenter: LatLng(35.6892, 51.3890), // ✅ تنظیم صحیح هدر مرکزیت نقشه
                 initialZoom: 11.0,
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  urlTemplate: 'https://openstreetmap.org{z}/{x}/{y}.png',
                   userAgentPackageName: 'com.kaseb.app',
                 ),
                 MarkerLayer(markers: _mapMarkers),
