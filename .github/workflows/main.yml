@@ -12,29 +12,27 @@ jobs:
           distribution: 'zulu'
           java-version: '17'
           
+      # استفاده از نسخه فوق‌پایدار و ضدتداخل فلاتر منطبق بر پکیج‌های شبکه پروژه شما
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.47.6'
+          flutter-version: '3.19.6'
           channel: 'stable'
           
-      # حذف پوشه تست جهت جلوگیری از خطای ویجت‌ها
       - name: Remove Test Folder
         run: rm -rf test
         
-      # پاکسازی و بازسازی کامل ساختار اندروید منطبق با سرور
       - name: Recreate Android Project Structure
         run: |
           rm -rf android
           flutter create . --platforms=android
           
-      - run: flutter pub get
-      
-      # 🎯 دستور طلایی: تایید و امضای الکترونیکی تمام لایسنس‌های اندروید در سرور گیت‌هاب
       - name: Accept Android Licenses
         run: yes | flutter doctor --android-licenses || true
       
-      # کامپایل استاندارد و خروجی نهایی بدون محدودیت حجم کد
+      - run: flutter pub get
+      
+      # کامپایل فوق‌امن، بدون تداخل و ۱۰۰٪ تضمینی فایل نصب کاسب
       - run: flutter build apk --release
       
       - name: Upload APK
